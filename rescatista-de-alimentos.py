@@ -63,3 +63,37 @@ df.head()
 df.to_csv("food_waste_limpio.csv", index=False)
 print("Archivo guardado")
 
+#ANALISIS EDA Y GRAFICOS
+#Preparar herramientas de visualización
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+sns.set_theme(style="whitegrid")
+
+#Grafico de barras: cantidad desperdiciada por tipo de negocio
+promedio = df.groupby("Food_Category")["Waste_Quantity"].mean().sort_values()
+
+promedio.plot(kind="barh", color="steelblue", figsize=(8, 4))
+plt.title("Desperdicio promedio por categoría de alimento")
+plt.xlabel("Unidades desperdiciadas (promedio)")
+plt.ylabel("")
+plt.show()
+
+# Grafico de barras: cantidad desperdiciada por tipo de negocio
+promedio = df.groupby("Business_Type")["Waste_Quantity"].mean().sort_values()
+
+promedio.plot(kind="barh", color="seagreen", figsize=(8, 4))
+plt.title("Desperdicio promedio por tipo de negocio")
+plt.xlabel("Unidades desperdiciadas (promedio)")
+plt.ylabel("")
+plt.show()
+
+# Grafico 3. Comprar de mas vs. desperdicio
+plt.figure(figsize=(8, 5))
+plt.scatter(df["Gap"], df["Waste_Quantity"], alpha=0.3, color="darkorange")
+plt.title("Comprar de más vs. desperdicio")
+plt.xlabel("Compra menos demanda (unidades de más)")
+plt.ylabel("Unidades desperdiciadas")
+plt.show()
+
+
