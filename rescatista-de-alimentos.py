@@ -96,4 +96,47 @@ plt.xlabel("Compra menos demanda (unidades de más)")
 plt.ylabel("Unidades desperdiciadas")
 plt.show()
 
+# Grafico 4. Temperatura de Almacenamiento
+
+df["Temp_Group"] = pd.cut(df["Storage_Temperature"],
+  bins=[-10, 5, 15, 40],
+  labels=["Fría (hasta 5°)", "Media (5-15°)", "Alta (más de 15°)"])
+
+promedio = df.groupby("Temp_Group", observed=True)["Waste_Quantity"].mean()
+
+promedio.plot(kind="bar", color="indianred", figsize=(8, 4), rot=0)
+plt.title("Desperdicio según temperatura de almacenamiento")
+plt.xlabel("")
+plt.ylabel("Unidades desperdiciadas (promedio)")
+plt.show()
+
+# Grafico 5. Clima
+
+promedio = df.groupby("Weather")["Waste_Quantity"].mean().sort_values()
+
+promedio.plot(kind="bar", color="slateblue", figsize=(8, 4), rot=0)
+plt.title("Desperdicio promedio según el clima")
+plt.xlabel("")
+plt.ylabel("Unidades desperdiciadas (promedio)")
+plt.show()
+
+#Grafico 6. Causas del desperdicio
+
+causas = df[df["Waste_Reason"] != "No Waste"].groupby("Waste_Reason")["Waste_Quantity"].sum().sort_values()
+
+causas.plot(kind="barh", color="goldenrod", figsize=(8, 4))
+plt.title("Total desperdiciado por causa")
+plt.xlabel("Unidades desperdiciadas (total)")
+plt.ylabel("")
+plt.show()
+
+#Grafico 7. Mapa de Correlaciones. ¿Que variables se relacionan con el desperdicio?
+
+columnas = ["Purchase_Quantity", "Daily_Demand", "Gap", "Shelf_Life_Days",
+  "Storage_Temperature", "Waste_Quantity"]
+
+plt.figure(figsize=(8, 6))
+sns.heatmap(df[columnas].corr(), annot=True, cmap="Blues", fmt=".2f")
+plt.title("Correlaciones entre variables")
+plt.show()
 
