@@ -163,3 +163,83 @@ else:
             st.markdown(f'<div class="consejo">{texto}</div>', unsafe_allow_html=True)
     else:
         st.success("✅ ¡Buen trabajo! Tus condiciones son adecuadas y el desperdicio esperado es bajo.")
+        
+# ---------- Análisis general del desperdicio ----------
+st.divider()
+st.header("📈 Análisis general del desperdicio")
+st.write("Explora los patrones de desperdicio alimentario según los datos históricos.")
+
+@st.cache_data
+def cargar_datos():
+    return pd.read_csv("food_waste_limpio.csv")
+
+try:
+    datos = cargar_datos()
+
+    # --- Gráfico 1: Desperdicio medio por categoría ---
+    if {"Food_Category", "Waste_Quantity"}.issubset(datos.columns):
+        st.subheader("🥗 Desperdicio medio por categoría")
+
+        desperdicio_categoria = (
+            datos.groupby("Food_Category")["Waste_Quantity"]
+            .mean()
+            .sort_values(ascending=False)
+        )
+
+        fig, ax = plt.subplots(figsize=(9, 4))
+        desperdicio_categoria.plot(kind="bar", ax=ax, color="#66BB6A")
+        ax.set_ylabel("Unidades desperdiciadas")
+        ax.set_xlabel("Categoría de alimento")
+        ax.set_title("Desperdicio medio por categoría")
+        ax.tick_params(axis="x", rotation=30)
+        fig.tight_layout()
+        st.pyplot(fig)
+        plt.close(fig)
+
+    # --- Gráfico 2: Desperdicio por motivo ---
+    if {"Waste_Reason", "Waste_Quantity"}.issubset(datos.columns):
+        st.subheader("🔎 Desperdicio según el motivo")
+
+        desperdicio_motivo = (
+            datos.groupby("Waste_Reason")["Waste_Quantity"]
+            .sum()
+            .sort_values(ascending=False)
+        )
+
+        fig, ax = plt.subplots(figsize=(9, 4))
+        desperdicio_motivo.plot(kind="bar", ax=ax, color="#FFA726")
+        ax.set_ylabel("Unidades desperdiciadas")
+        ax.set_xlabel("Motivo")
+        ax.set_title("Cantidad de desperdicio por motivo")
+        ax.tick_params(axis="x", rotation=30)
+        fig.tight_layout()
+        st.pyplot(fig)
+        plt.close(fig)
+
+    # --- Gráfico 3: Evolución temporal ---
+    if {"Date", "Waste_Quantity"}.issubset(datos.columns):
+        st.subheader("📅 Evolución del desperdicio en el tiempo")
+
+        datos["Date"] = pd.to_datetime(datos["Date"], errors="coerce")
+        datos_tiempo = datos.dropna(subset=["Date"]).copy()
+
+        datos_tiempo["Mes"] = (
+            datos_tiempo["Date"].dt.to_period("M").astype(str)
+        )
+
+        desperdicio_mes = (
+            datos_tiempo.groupby("Mes")["Waste_Quantity"].sum()
+        )
+
+        fig, ax = plt.subplots(figsize=(10, 4))
+        desperdicio_mes.plot(kind="line", marker="o", ax=ax, color="#2E7D32")
+        ax.set_ylabel("Unidades desperdiciadas")
+        ax.set_xlabel("Mes")
+        ax.set_title("Evolución mensual del desperdicio")
+        ax.tick_params(axis="x", rotation=45)
+        fig.tight_layout()
+        st.pyplot(fig)
+        plt.close(fig)
+
+except FileNotFoundError:
+    st.error("No se encuentra el archivo food_waste_limpio.csv.")
